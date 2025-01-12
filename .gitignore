@@ -1,0 +1,5 @@
+# Ignore node_modules folder in the front-end folder
+Frontend/node_modules/
+
+# Ignore venv folder in the back-end folder
+Python\ Backend/venv/

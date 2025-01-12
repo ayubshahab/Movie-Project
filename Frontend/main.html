@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search</title>
+</head>
+
+<body>
+    <h1>Search for Movies</h1>
+
+    <!-- Search by Movie Title -->
+    <div>
+        <label for="movie-title">Search by Movie Title:</label>
+        <input type="text" id="movie-title" name="movie-title" placeholder="Enter movie title">
+    </div>
+
+    <!-- Filter by Genre -->
+    <div>
+        <label for="genre">Filter by Genre:</label>
+        <select id="genre" name="genre">
+            <option value="all">All</option>
+            <option value="action">Action</option>
+            <option value="comedy">Comedy</option>
+            <option value="drama">Drama</option>
+            <option value="horror">Horror</option>
+            <option value="romance">Romance</option>
+            <option value="sci-fi">Sci-Fi</option>
+            <option value="thriller">Thriller</option>
+        </select>
+    </div>
+
+    <!-- Search by Movie Director -->
+    <div>
+        <label for="movie-director">Search by Movie Director:</label>
+        <input type="text" id="movie-director" name="movie-director" placeholder="Enter director's name">
+    </div>
+
+    <!-- Submit Button -->
+    <div>
+        <button id="submit-btn" type="button">Search</button>
+        <button id="populate-database" type="button">Populate Database</button>
+        <button id="clear-database" type="button">Clear Database</button>
+    </div>
+
+    <div>
+        <h1>Here is the list of top 10 highest grossing movies</h1>
+        <div id="movies-list">
+
+        </div>
+    </div>
+</body>
+
+<!-- Script Section -->
+<script>
+    document.getElementById('submit-btn').addEventListener('click', function () {
+        // Get values from input fields and dropdown
+        const movieTitle = document.getElementById('movie-title').value;
+        const genre = document.getElementById('genre').value;
+        const movieDirector = document.getElementById('movie-director').value;
+
+        // Store the values in a dictionary
+        const searchFilters = {
+            title: movieTitle || null,
+            genre: genre,
+            director: movieDirector || null
+        };
+
+        // Log the dictionary to the console (simulating a POST request)
+        console.log(searchFilters);
+
+        // Example of preparing the POST request (uncomment to use in real scenarios)
+        fetch('/receive_filters', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(searchFilters)
+        })
+            .then(response => response.json())
+            .then(data => console.log('Response:', data))
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('clear-database').addEventListener('click', function () {
+        fetch('/clear_database', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => console.log('Response:', data))
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('populate-database').addEventListener('click', function () {
+        fetch('http://localhost:5000/populateDatabase', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => console.log('Response:', data))
+            .catch(error => console.error('Error:', error));
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('http://localhost:5000/topTenGrossing', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Select the div where the movie data will be displayed
+                const moviesListDiv = document.getElementById('movies-list');
+
+                // Iterate over the movie data and create HTML elements for each
+                data.data.forEach(movie => {
+                    const movieDiv = document.createElement('div');
+                    movieDiv.style.marginBottom = '15px'; // Add some spacing
+
+                    // Extract relevant movie details (e.g., title and grossing numbers)
+                    const [id, title, domesticGross, worldwideGross, budget, releaseDate, distributor, source, genre, creative_type, director, rotten_rating, imdb_rating, imdb_votes] = movie;
+
+                    // Set the inner HTML of the div
+                    movieDiv.innerHTML = `
+                            <h3>${title}</h3>
+                            <p><strong>Domestic Gross:</strong> $${parseInt(domesticGross).toLocaleString()}</p>
+                            <p><strong>Worldwide Gross:</strong> $${parseInt(worldwideGross).toLocaleString()}</p>
+                            <p><strong>Budget:</strong> $${parseInt(budget).toLocaleString()}</p>
+                            <p><strong>Release Date:</strong> ${releaseDate}</p>
+                            <p><strong>Distributor:</strong> ${distributor}</p>
+                            <p><strong>Source:</strong> ${source}</p>
+                            <p><strong>Genre:</strong> ${genre}</p>
+                            <p><strong>Creative Type:</strong> ${creative_type}</p>
+                            <p><strong>Director:</strong> ${director}</p>
+                            <p><strong>Rotten Tomatoes Rating:</strong> ${rotten_rating}</p>
+                            <p><strong>IMDB Rating:</strong> ${imdb_rating}</p>
+                            <p><strong>IMDB Votes:</strong> ${imdb_votes}</p>
+                        `;
+
+                    // Append the movie div to the movies list container
+                    moviesListDiv.appendChild(movieDiv);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+</script>
+
+</html>
